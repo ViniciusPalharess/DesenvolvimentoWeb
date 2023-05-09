@@ -1,10 +1,8 @@
 <script setup>
 import { ref } from 'vue'
 
-const mostrarDescricao = ref(false);
-const produtoSelecionado = ref({});
 
-    const produtos = ref([
+const produtos = ref([
   {
     id: 1,
     nome: 'Camiseta',
@@ -51,7 +49,7 @@ const produtoSelecionado = ref({});
     imagem:
       'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSou9Y9ylKVEgdmqskSdChs5Ml3jteGUtqOLA&usqp=CAU',
     descricao: 'Boné Masculino',
-  link: 'https://www.dafiti.com.br/Bone-adidas-Hino-Flamengo-Branco-1776827.html',
+    link: 'https://www.dafiti.com.br/Bone-adidas-Hino-Flamengo-Branco-1776827.html',
     enviar: ''
   },
   {
@@ -105,81 +103,81 @@ const produtoSelecionado = ref({});
   }
 ]);
 
-    const carrinho = ref([
-        {
-      
-        id: 1,
-        nome: 'Camiseta',
-        preco: 49.90,
-        quantidade: 0,
-        valorTotal:''
-    },
-    {
-        id: 2,
-        nome: 'Calça',
-        preco: 99.90,
-        quantidade: 0,
-        valorTotal:''
-    },
-    {
-        id: 3,
-        nome: 'Meia',
-        preco: 9.90,
-        quantidade: 0,
-        valorTotal:''
-    },
-    {
-        id: 4,
-        nome: 'Sapato',
-        preco: 199.90,
-        quantidade: 0,
-        valorTotal:''
-    },
-    {
-        id: 5,
-        nome: 'Boné',
-        preco: 29.90,
-      quantidade: 0,
-        valorTotal:''
-    },
-    {
-        id: 6,
-        nome: 'Óculos',
-        preco: 99.90,
-        quantidade: 0,
-        valorTotal:''
-    },
-    {
-        id: 7,
-        nome: 'Relógio',
-        preco: 299.90,
-        quantidade: 0,
-        valorTotal:''
-    },
-    {
-        id: 8,
-        nome: 'Bermuda',
-        preco: 79.90,
-        quantidade: 0,
-        valorTotal:''
-    },
-    {
-        id: 9,
-        nome: 'Cueca',
-        preco: 19.90,
-        quantidade: 0,
-        valorTotal:''
-    },
-    {
-        id: 10,
-        nome: 'Meia',
-        preco: 9.90,
-        quantidade: 0,
-        valorTotal:''
-    }
-    ]);
+const carrinho = ref([
+  {
 
-    function selecionarProduto(produto) {
+    id: 1,
+    nome: 'Camiseta',
+    preco: 49.90,
+    quantidade: 0,
+    valorTotal: ''
+  },
+  {
+    id: 2,
+    nome: 'Calça',
+    preco: 99.90,
+    quantidade: 0,
+    valorTotal: ''
+  },
+  {
+    id: 3,
+    nome: 'Meia',
+    preco: 9.90,
+    quantidade: 0,
+    valorTotal: ''
+  },
+  {
+    id: 4,
+    nome: 'Sapato',
+    preco: 199.90,
+    quantidade: 0,
+    valorTotal: ''
+  },
+  {
+    id: 5,
+    nome: 'Boné',
+    preco: 29.90,
+    quantidade: 0,
+    valorTotal: ''
+  },
+  {
+    id: 6,
+    nome: 'Óculos',
+    preco: 99.90,
+    quantidade: 0,
+    valorTotal: ''
+  },
+  {
+    id: 7,
+    nome: 'Relógio',
+    preco: 299.90,
+    quantidade: 0,
+    valorTotal: ''
+  },
+  {
+    id: 8,
+    nome: 'Bermuda',
+    preco: 79.90,
+    quantidade: 0,
+    valorTotal: ''
+  },
+  {
+    id: 9,
+    nome: 'Cueca',
+    preco: 19.90,
+    quantidade: 0,
+    valorTotal: ''
+  },
+  {
+    id: 10,
+    nome: 'Meia',
+    preco: 9.90,
+    quantidade: 0,
+    valorTotal: ''
+  }
+]);
+
+function selecionarProduto(produto) {
   if (produto.id === produtoSelecionado.value.id) {
     mostrarDescricao.value = !mostrarDescricao.value;
   } else {
@@ -193,21 +191,21 @@ function incrementarContador(item) {
 };
 
 function decrementarContador(item) {
-  if(carrinho.value[item.id - 1].quantidade > 0){
+  if (carrinho.value[item.id - 1].quantidade > 0) {
     carrinho.value[item.id - 1].quantidade -= 1;
   };
 };
 
-let showCarrinho = ref(true)
+const mostrarDescricao = ref(false);
+const produtoSelecionado = ref({});
+let showCarrinho = ref(false)
 </script>
 
 <template>
-
-
   <main>
-    <h1>COMPRAS</h1>      
+    <h1>COMPRAS</h1>
 
-    <div class="produtos" >
+    <div class="produtos">
 
       <div v-if="showCarrinho" class="acarrinho">
         carrinho
@@ -228,34 +226,35 @@ let showCarrinho = ref(true)
 
         <div class="contador">
 
-        <button class="decrementar" @click="decrementarContador(produto)">-</button>
+          <button class="decrementar" @click="decrementarContador(produto)">-</button>
 
-          {{ carrinho[produto.id - 1 ].quantidade }}
+          {{ carrinho[produto.id - 1].quantidade }}
 
-        <button class="incrementar" @click="incrementarContador(produto)">+</button>
+          <button class="incrementar" @click="incrementarContador(produto)">+</button>
 
-      </div>
-        
-        <button class="button-28" @click="selecionarProduto(produto) "> {{ mostrarDescricao && produto.id === produtoSelecionado.id ? 'Ocultar Descrição' : 'Mostrar descrição' }}</button>
-      
-        <div class="descricao" v-if="mostrarDescricao && produto.id === produtoSelecionado.id">{{ produto.descricao }}</div>
-      
-        <div v-if="mostrarDescricao && produto.id === produtoSelecionado.id"> 
-        
-          <p class="preco">Preço: {{ produto.preco.toFixed(2)}}R$</p>
+        </div>
 
-        <button class="button-14"><a :href="produto.link" class="link">Você pode encontrar o produto tambem em: </a></button>
-  
-      </div>
-      <button @click="showCarrinho = !showCarrinho"> Adcionar ao carrinho </button>
+        <button class="button-28" @click="selecionarProduto(produto)"> {{ mostrarDescricao && produto.id ===
+          produtoSelecionado.id ? 'Ocultar Descrição' : 'Mostrar descrição' }}</button>
+
+        <div class="descricao" v-if="mostrarDescricao && produto.id === produtoSelecionado.id">{{ produto.descricao }}
+        </div>
+
+        <div v-if="mostrarDescricao && produto.id === produtoSelecionado.id">
+
+          <p class="preco">Preço: {{ produto.preco.toFixed(2) }}R$</p>
+
+          <button class="button-14"><a :href="produto.link" class="link">Você pode encontrar o produto tambem em:
+            </a></button>
+
+        </div>
+        <button class="button-30"  @click="showCarrinho = !showCarrinho"> Adcionar ao carrinho </button>
       </div>
     </div>
   </main>
 </template>
 
 <style scoped>
-
-
 main {
   display: flex;
   justify-content: center;
@@ -264,7 +263,7 @@ main {
   width: 100%;
 }
 
-h1{
+h1 {
   display: flex;
   justify-content: center;
   background-color: black;
@@ -272,6 +271,7 @@ h1{
   width: 100%;
 
 }
+
 .card {
   margin: 5%;
   border: 3px solid black;
@@ -291,35 +291,41 @@ h1{
   font-size: 30px;
   font-weight: 800;
 }
+
 .card .imagem {
   display: flex;
   justify-content: center;
 }
-.quantidade{
+
+.quantidade {
   display: flex;
   justify-content: center;
   background-color: black;
   color: white;
   width: 100%;
   font-size: 21px;
-  font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
-.contador{
+
+.contador {
   display: flex;
   justify-content: center;
   margin-top: 3%;
   margin-bottom: 5%;
 }
-.contador .incrementar{
+
+.contador .incrementar {
   margin-left: 2%;
   border: 1px solid black;
   border-radius: 10px;
 }
-.contador .decrementar{
+
+.contador .decrementar {
   margin-right: 2%;
   border: 1px solid black;
   border-radius: 10px;
 }
+
 .produtos {
   display: flex;
   flex-direction: row;
@@ -334,27 +340,29 @@ img {
   max-height: 150px;
 }
 
-.descricao{
+.descricao {
   margin-top: 5%;
   font-size: 25px;
   font-weight: 800;
 }
-.preco{
+
+.preco {
   font-size: 19px;
 
 }
+
 .button-14 {
-  background-image: linear-gradient(#f7f8fa ,#e7e9ec);
+  background-image: linear-gradient(#f7f8fa, #e7e9ec);
   border-color: #adb1b8 #a2a6ac #8d9096;
   border-style: solid;
   border-width: 1px;
   border-radius: 3px;
-  box-shadow: rgba(255,255,255,.6) 0 1px 0 inset;
+  box-shadow: rgba(255, 255, 255, .6) 0 1px 0 inset;
   box-sizing: border-box;
   color: #0f1111;
   cursor: pointer;
   display: inline-block;
-  font-family: "Amazon Ember",Arial,sans-serif;
+  font-family: "Amazon Ember", Arial, sans-serif;
   font-size: 14px;
   height: 29px;
   font-size: 13px;
@@ -388,7 +396,50 @@ img {
   outline: 0;
 }
 
+.button-30 {
+  display: flex;
+  justify-content: center;
+  margin-top: 10%;
+  appearance: none;
+  background-color: #FCFCFD;
+  border-radius: 4px;
+  box-shadow: rgba(45, 35, 66, 0.4) 0 2px 4px,rgba(45, 35, 66, 0.3) 0 7px 13px -3px,#D6D6E7 0 -3px 0 inset;
+  box-sizing: border-box;
+  color: #36395A;
+  cursor: pointer;
+  display: flex;
+  font-family: "JetBrains Mono",monospace;
+  height: 29px;
+  width: 100%;
+  line-height: 1;
+  list-style: none;
+  overflow: hidden;
+  padding-left: 16px;
+  padding-right: 16px;
+  position: relative;
+  text-align: left;
+  text-decoration: none;
+  transition: box-shadow .50s,transform .50s;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  white-space: nowrap;
+  font-size: 18px;
+}
 
+.button-30:focus {
+  box-shadow: #cfcfe9 0 0 0 1.5px inset, rgba(45, 35, 66, 0.4) 0 2px 4px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #D6D6E7 0 -3px 0 inset;
+}
+
+.button-30:hover {
+  box-shadow: rgba(75, 59, 109, 0.4) 0 4px 8px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #D6D6E7 0 -3px 0 inset;
+  transform: translateY(2px);
+}
+
+.button-30:active {
+  box-shadow: #D6D6E7 0 3px 7px inset;
+  transform: translateY(-2px);
+}
 .button-28 {
   appearance: none;
   background-color: transparent;
@@ -398,7 +449,7 @@ img {
   color: #3B3B3B;
   cursor: pointer;
   display: inline-block;
-  font-family: "Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+  font-family: "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   font-size: 16px;
   font-weight: 600;
   min-height: 40px;
@@ -443,5 +494,4 @@ a {
   color: white;
   left: 50%;
   top: 50%;
-}
-</style>
+}</style>
