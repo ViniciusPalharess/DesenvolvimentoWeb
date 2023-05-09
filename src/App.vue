@@ -3,8 +3,6 @@ import { ref } from 'vue'
 
 const mostrarDescricao = ref(false);
 const produtoSelecionado = ref({});
-const mostrarCarrinho = ref(false);
-
 
     const produtos = ref([
   {
@@ -200,19 +198,22 @@ function decrementarContador(item) {
   };
 };
 
-
+let showCarrinho = ref(true)
 </script>
 
 <template>
 
 
   <main>
-    <h1>COMPRAS</h1>
-
-  <button @click="mostrarCarrinho = ! mostrarCarrinho">Mostrar carrinho</button>
-      
+    <h1>COMPRAS</h1>      
 
     <div class="produtos" >
+
+      <div v-if="showCarrinho" class="acarrinho">
+        carrinho
+        <button @click="showCarrinho = !showCarrinho">ocultar</button>
+      </div>
+
       <div v-for="produto in produtos" :key="produto.id" class="card">
 
         <p class="title">
@@ -246,7 +247,7 @@ function decrementarContador(item) {
         <button class="button-14"><a :href="produto.link" class="link">Você pode encontrar o produto tambem em: </a></button>
   
       </div>
-      <button @click="produtos.enviar"> Adcionar ao carrinho </button>
+      <button @click="showCarrinho = !showCarrinho"> Adcionar ao carrinho </button>
       </div>
     </div>
   </main>
@@ -433,5 +434,14 @@ img {
 a {
   color: black;
   text-decoration: none;
+}
+
+.acarrinho {
+  position: absolute;
+  width: 50%;
+  background-color: #0f1111;
+  color: white;
+  left: 50%;
+  top: 50%;
 }
 </style>
