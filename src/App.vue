@@ -122,15 +122,24 @@ const carrinhos = ref({
 
 
 function adicionar(produto) {
-   carrinhos.value.items.push(
-     { ...produtos.value[produto.id - 1], preco: produtos.value[produto.id - 1].quantidade * produtos.value[produto.id - 1].preco }
-   );
-  carrinhos.value.total = carrinhos.value.total + produtos.value[produto.id - 1].preco * produtos.value[produto.id - 1].quantidade;
+  const index = carrinhos.value.items.findIndex(item => item.id === produto.id);
 
- console.log(carrinhos.value.items);
+  if (index >= 0) {
+    carrinhos.value.items[index].quantidade += produto.quantidade;
+  } 
+ 
+else {
+    carrinhos.value.items.push({
+    ...produtos.value[produto.id - 1],
 
- showCarrinho.value = !showCarrinho.value;
-};
+   preco: produtos.value[produto.id - 1].quantidade * produtos.value[produto.id - 1].preco
+    });
+  }
+
+  carrinhos.value.total += produto.quantidade * produto.preco;
+
+  showCarrinho.value = !showCarrinho.value;
+}
 
 
 function selecionarProduto(produto) {
@@ -165,6 +174,13 @@ let showCarrinho = ref(false);
  <main>
    <h1>COMPRAS</h1>
 
+   <div>
+    <button class="carrinho" @click="showCarrinho = !showCarrinho">
+      <i class="fas fa-shopping-cart"></i>
+    </button>
+    <div class="carrinho-container" v-if="mostrarCarrinho">
+    </div>
+  </div>
 
    <div class="produtos">
 
@@ -222,9 +238,6 @@ let showCarrinho = ref(false);
        <button class="button-30" @click="adicionar(produto)"> Adcionar ao carrinho </button>
      </div>
    </div>
-   {{ item ? item.quantidade : '' }}
-
-
  </main>
 
 
@@ -234,12 +247,7 @@ let showCarrinho = ref(false);
    <div class="item" v-for="item in carrinhos.items" :key="item.id">
      <p>Item: {{ item.nome }}</p>
      <p>Preco: {{ item.preco.toFixed(2) }}</p>
-     <p>ID: {{ item.id }}</p>
      <p>Quantidade: {{ item.quantidade }}</p>
-     <img :src="item.img">
-
-
-
 
    </div>
    <p> Total:{{ carrinhos.total.toFixed(2) }}</p>
@@ -248,6 +256,38 @@ let showCarrinho = ref(false);
 
 
 <style scoped>
+button.carrinho {
+  background-color: #fff;
+  border: 2px solid #000;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  margin-left: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+button.carrinho:hover {
+  background-color: #000;
+  color: #fff;
+}
+
+.carrinho-container {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 300px;
+  background-color: #fff;
+  border: 2px solid #000;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  z-index: 1;
+}
+
 main {
  display: flex;
  justify-content: center;
