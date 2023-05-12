@@ -178,7 +178,7 @@ let showCarrinho = ref(false);
     <button class="carrinho" @click="showCarrinho = !showCarrinho">
       <i class="fas fa-shopping-cart"></i>
     </button>
-    <div class="carrinho-container" v-if="mostrarCarrinho">
+    <div class="carrinho-container" v-if="showCarrinho">
     </div>
   </div>
 
@@ -227,7 +227,7 @@ let showCarrinho = ref(false);
        <div v-if="mostrarDescricao && produto.id === produtoSelecionado.id">
 
 
-         <p class="preco">Preço: {{ produto.preco.toFixed(2) }}R$</p>
+         <p class="preco">Preço: {{ produto.preco.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}) }}</p>
 
 
          <button class="button-14"><a :href="produto.link" class="link">Você pode encontrar o produto tambem em:
@@ -256,6 +256,30 @@ let showCarrinho = ref(false);
 
 
 <style scoped>
+
+main {
+ align-items: center;
+ flex-direction: column;
+ width: 100%;
+}
+
+
+h1 {
+ display: flex;
+ justify-content: center;
+ background-color: black;
+ color: white;
+ width: 100%;
+
+
+}
+.produtos {
+ display: flex;
+ justify-content: center;
+ flex-wrap: wrap;
+ width: 100%;
+}
+
 button.carrinho {
   background-color: #fff;
   border: 2px solid #000;
@@ -288,26 +312,6 @@ button.carrinho:hover {
   z-index: 1;
 }
 
-main {
- display: flex;
- justify-content: center;
- align-items: center;
- flex-direction: column;
- width: 100%;
-}
-
-
-h1 {
- display: flex;
- justify-content: center;
- background-color: black;
- color: white;
- width: 100%;
-
-
-}
-
-
 .card {
  margin: 5%;
  border: 3px solid black;
@@ -317,7 +321,7 @@ h1 {
    rgba(0, 0, 0, 0.12) 0px 4px 6px, rgba(0, 0, 0, 0.17) 0px 12px 13px,
    rgba(0, 0, 0, 0.09) 0px -3px 5px;
  justify-content: center;
- width: 30%;
+ width: 20%;
 }
 
 
@@ -367,15 +371,6 @@ h1 {
  border: 1px solid black;
  border-radius: 10px;
 }
-
-
-.produtos {
- display: flex;
- flex-direction: row;
- flex-wrap: wrap;
- width: 65%;
-}
-
 
 img {
  display: flex;
