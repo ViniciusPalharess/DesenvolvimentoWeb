@@ -1,6 +1,10 @@
 <script setup>
 import { ref } from 'vue'
 
+const mostrarDescricao = ref(false);
+const produtoSelecionado = ref({});
+let showProdutos = ref(true);
+
 const produtos = ref([
  {
    id: 1,
@@ -112,34 +116,74 @@ const produtos = ref([
  }
 ]);
 
-
 const carrinhos = ref({
+
  items: [],
  total: 0,
-
 
 });
 
 
 function adicionar(produto) {
   const index = carrinhos.value.items.findIndex(item => item.id === produto.id);
+  const estoque = produto.quantidade;
 
   if (index >= 0) {
-    carrinhos.value.items[index].quantidade += produto.quantidade;
-  } 
- 
-else {
-    carrinhos.value.items.push({
-    ...produtos.value[produto.id - 1],
+    if (carrinhos.value.items[index].quantidade + 1 > estoque) {
+      alert(`A quantidade máxima para este produto é ${estoque}`);
+      return;
+    }
 
-   preco: produtos.value[produto.id - 1].quantidade * produtos.value[produto.id - 1].preco
-    });
+    carrinhos.value.items[index].quantidade += 1;
+    carrinhos.value.items[index].preco = carrinhos.value.items[index].quantidade * carrinhos.value.items[index].precoUnitario;
+  } else {
+    const item = {
+      id: produto.id,
+      nome: produto.nome,
+      precoUnitario: produto.preco,
+      quantidade: 1,
+      preco: produto.preco
+    };
+
+    carrinhos.value.items.push(item);
   }
 
-  carrinhos.value.total += produto.quantidade * produto.preco;
+  const prodIndex = produtos.value.findIndex(prod => prod.id === produto.id);
+  produtos.value[prodIndex].quantidade -= 1;
+  carrinhos.value.total = carrinhos.value.items.reduce((acc, item) => acc + item.preco, 0);
 
-  showCarrinho.value = !showCarrinho.value;
+  toggleCarrinho();
 }
+
+function incrementarContador(produto) {
+  const index = carrinhos.value.items.findIndex(item => item.id === produto.id);
+
+  produto.quantidade -= 1;
+  carrinhos.value.items[index].quantidade += 1;
+  carrinhos.value.total += produto.precoUnitario;
+}
+
+
+function decrementarContador(produto) {
+  const index = carrinhos.value.items.findIndex(item => item.id === produto.id);
+
+  if (carrinhos.value.items[index].quantidade > 1) {
+    produto.quantidade += 1;
+    carrinhos.value.items[index].quantidade -= 1;
+    carrinhos.value.items[index].preco = carrinhos.value.items[index].quantidade * carrinhos.value.items[index].precoUnitario;
+  } else {
+    produto.quantidade += 1;
+    carrinhos.value.items.splice(index, 1);
+  }
+
+  const prodIndex = produtos.value.findIndex(prod => prod.id === produto.id);
+  produtos.value[prodIndex].quantidade += 1;
+
+  carrinhos.value.total = carrinhos.value.items.reduce((acc, item) => acc + item.preco, 0);
+}
+
+
+
 
 
 function selecionarProduto(produto) {
@@ -151,21 +195,10 @@ function selecionarProduto(produto) {
  }
 };
 
-
-function incrementarContador(produto) {
- produtos.value[produto.id - 1].quantidade += 1;
+function toggleCarrinho() {
+    showProdutos.value = !showProdutos.value
 };
 
-function decrementarContador(produto) {
- if (produtos.value[produto.id - 1].quantidade > 0) {
-   produtos.value[produto.id - 1].quantidade -= 1;
- }
-};
-
-
-const mostrarDescricao = ref(false);
-const produtoSelecionado = ref({});
-let showCarrinho = ref(false);
 
 </script>
 
@@ -173,52 +206,39 @@ let showCarrinho = ref(false);
 <template>
  <main>
    <h1>COMPRAS</h1>
-
    <div>
-    <button class="carrinho" @click="showCarrinho = !showCarrinho">
-      <i class="fas fa-shopping-cart"></i>
-    </button>
-    <div class="carrinho-container" v-if="showCarrinho">
-    </div>
-  </div>
+    <button class="botaoCarrinho" @click="toggleCarrinho">
+          {{ showProdutos ? 'Carrinho' : 'Produtos' }}
+        </button>
+    <div>
+      <div class="carrinho-container" v-if="!showProdutos">
+      <button @click="toggleCarrinho">Voltar para Produtos</button>
+      <div class="item" v-for="item in carrinhos.items" :key="item.id">
+      <p>Item: {{ item.nome }}</p>
+      <p>Preco: {{ item.preco.toFixed(2) }}</p>
+      <p>Quantidade: {{ item.quantidade }}</p>
+     <button @click="incrementarContador(item)">+</button>
+     <button @click="decrementarContador(item)">-</button>
+</div>
+    <p> Total:{{ carrinhos.total.toFixed(2) }}</p>
 
-   <div class="produtos">
+      </div>
+   </div>
+ </div>
 
+
+   <div class="produtos"  v-if="showProdutos">
 
      <div v-for="produto in produtos" :key="produto.id" class="card">
-
-
-       <p class="title">
-         {{ produto.nome }}
-       </p>
-
-
-       <div class="imagem">
-         <img :src="produto.imagem" />
-       </div>
-
-
-       <p class="quantidade">Quantidade: </p>
-
-
-       <div class="contador">
-
-
-         <button class="decrementar" @click="decrementarContador(produto)">-</button>
-
-
-         {{ produto.quantidade }}
-
-
-         <button class="incrementar" @click="incrementarContador(produto)">+</button>
-
-
-       </div>
-
-
-       <button class="button-28" @click="selecionarProduto(produto)"> {{ mostrarDescricao && produto.id ===
+      <p class="title">{{ produto.nome }}</p>
+      <div class="imagem"><img :src="produto.imagem"/></div>
+      <p class="quantidade">Quantidade: </p>
+      <p>{{ produto.quantidade }}</p>
+      <button @click="incrementarContador(produto)">+</button>
+     <button @click="decrementarContador(produto )">-</button>
+   
+      <button class="button-28" @click="selecionarProduto(produto)"> {{ mostrarDescricao && produto.id ===
          produtoSelecionado.id ? 'Ocultar Descrição' : 'Mostrar descrição' }}</button>
-
 
        <div class="descricao" v-if="mostrarDescricao && produto.id === produtoSelecionado.id">{{ produto.descricao }}
        </div>
@@ -235,34 +255,25 @@ let showCarrinho = ref(false);
 
 
        </div>
-       <button class="button-30" @click="adicionar(produto)"> Adcionar ao carrinho </button>
+       <button class="button-30" @click="adicionar(produto)" > Adcionar ao carrinho </button>
      </div>
    </div>
+
  </main>
 
 
- <div class="acarrinho" v-if="showCarrinho">
-   Carrinho
-   <button @click="showCarrinho = !showCarrinho">Ocultar</button>
-   <div class="item" v-for="item in carrinhos.items" :key="item.id">
-     <p>Item: {{ item.nome }}</p>
-     <p>Preco: {{ item.preco.toFixed(2) }}</p>
-     <p>Quantidade: {{ item.quantidade }}</p>
 
-   </div>
-   <p> Total:{{ carrinhos.total.toFixed(2) }}</p>
- </div>
 </template>
 
 
 <style scoped>
+/* Sem Classes */
 
 main {
  align-items: center;
  flex-direction: column;
  width: 100%;
 }
-
 
 h1 {
  display: flex;
@@ -273,43 +284,36 @@ h1 {
 
 
 }
+
+a {
+ color: black;
+ text-decoration: none;
+}
+
+/* Carrinho */
+
+.carrinho-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 2%;
+  background-color: #fff;
+  border: 2px solid #000;
+  width: 50%;
+}
+
+.item {
+  border: 2px solid black;
+  margin-top: 2%;
+  border-radius: 20px;
+  padding: 10px;
+}
+
+/* Produto */
 .produtos {
  display: flex;
  justify-content: center;
  flex-wrap: wrap;
  width: 100%;
-}
-
-button.carrinho {
-  background-color: #fff;
-  border: 2px solid #000;
-  border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  margin-left: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  cursor: pointer;
-}
-
-button.carrinho:hover {
-  background-color: #000;
-  color: #fff;
-}
-
-.carrinho-container {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  width: 300px;
-  background-color: #fff;
-  border: 2px solid #000;
-  border-radius: 10px;
-  padding: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-  z-index: 1;
 }
 
 .card {
@@ -324,7 +328,6 @@ button.carrinho:hover {
  width: 20%;
 }
 
-
 .card .title {
  background-color: black;
  color: white;
@@ -333,14 +336,12 @@ button.carrinho:hover {
  font-weight: 800;
 }
 
-
 .card .imagem {
  display: flex;
  justify-content: center;
 }
 
-
-.quantidade {
+.card .quantidade {
  display: flex;
  justify-content: center;
  background-color: black;
@@ -350,29 +351,14 @@ button.carrinho:hover {
  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
-
-.contador {
+.card .contador {
  display: flex;
  justify-content: center;
  margin-top: 3%;
  margin-bottom: 5%;
 }
 
-
-.contador .incrementar {
- margin-left: 2%;
- border: 1px solid black;
- border-radius: 10px;
-}
-
-
-.contador .decrementar {
- margin-right: 2%;
- border: 1px solid black;
- border-radius: 10px;
-}
-
-img {
+.card img {
  display: flex;
  justify-content: center;
  max-width: 200px;
@@ -380,19 +366,41 @@ img {
 }
 
 
-.descricao {
+.card .descricao {
  margin-top: 5%;
  font-size: 25px;
  font-weight: 800;
 }
 
 
-.preco {
+.card .preco {
  font-size: 19px;
-
-
 }
 
+/* Botões */
+.botaoCarrinho {
+  background-color: #fff;
+  border: 2px solid #000;
+  font-size: 24px;
+  margin-left: 3%;
+}
+
+.botaoCarrinho:hover {
+  background-color: #000;
+  color: #fff;
+}
+
+.incrementar {
+ margin-left: 2%;
+ border: 1px solid black;
+ border-radius: 10px;
+}
+
+.decrementar {
+ margin-right: 2%;
+ border: 1px solid black;
+ border-radius: 10px;
+}
 
 .button-14 {
  background-image: linear-gradient(#f7f8fa, #e7e9ec);
@@ -421,28 +429,23 @@ img {
  white-space: nowrap;
 }
 
-
 .button-14:active {
  border-bottom-color: #a2a6ac;
 }
-
 
 .button-14:active:hover {
  border-bottom-color: #a2a6ac;
 }
 
-
 .button-14:hover {
  border-color: #a2a6ac #979aa1 #82858a;
 }
-
 
 .button-14:focus {
  border-color: #e77600;
  box-shadow: rgba(228, 121, 17, .5) 0 0 3px 2px;
  outline: 0;
 }
-
 
 .button-30 {
  display: flex;
@@ -475,23 +478,19 @@ img {
  font-size: 18px;
 }
 
-
 .button-30:focus {
  box-shadow: #cfcfe9 0 0 0 1.5px inset, rgba(45, 35, 66, 0.4) 0 2px 4px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #D6D6E7 0 -3px 0 inset;
 }
-
 
 .button-30:hover {
  box-shadow: rgba(75, 59, 109, 0.4) 0 4px 8px, rgba(45, 35, 66, 0.3) 0 7px 13px -3px, #D6D6E7 0 -3px 0 inset;
  transform: translateY(2px);
 }
 
-
 .button-30:active {
  box-shadow: #D6D6E7 0 3px 7px inset;
  transform: translateY(-2px);
 }
-
 
 .button-28 {
  appearance: none;
@@ -516,17 +515,9 @@ img {
  width: 100%;
 }
 
-
 .button-28:disabled {
  pointer-events: none;
 }
-
-
-
-
-
-
-
 
 .button-28:hover {
  color: #fff;
@@ -535,25 +526,9 @@ img {
  transform: translateY(-2px);
 }
 
-
 .button-28:active {
  box-shadow: none;
  transform: translateY(0);
 }
 
-
-a {
- color: black;
- text-decoration: none;
-}
-
-
-.acarrinho {
- position: absolute;
- width: 50%;
- background-color: #0f1111;
- color: white;
- left: 50%;
- top: 50%;
-}
 </style>
