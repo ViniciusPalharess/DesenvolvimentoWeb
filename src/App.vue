@@ -123,14 +123,13 @@ const carrinhos = ref({
 
 });
 
-
 function adicionar(produto) {
   const index = carrinhos.value.items.findIndex(item => item.id === produto.id);
   const estoque = produto.quantidade;
 
   if (index >= 0) {
     if (carrinhos.value.items[index].quantidade + 1 > estoque) {
-      alert(`A quantidade máxima para este produto é ${estoque}`);
+      alert(`Produto já existente no carrinho`);
       return;
     }
 
@@ -146,123 +145,123 @@ function adicionar(produto) {
     };
 
     carrinhos.value.items.push(item);
+    produto.primeiroClique = true;
   }
 
   const prodIndex = produtos.value.findIndex(prod => prod.id === produto.id);
   produtos.value[prodIndex].quantidade -= 1;
   carrinhos.value.total = carrinhos.value.items.reduce((acc, item) => acc + item.preco, 0);
-
-  toggleCarrinho();
 }
 
 function incrementarContador(produto) {
   const index = carrinhos.value.items.findIndex(item => item.id === produto.id);
 
-  produto.quantidade -= 1;
   carrinhos.value.items[index].quantidade += 1;
   carrinhos.value.total += produto.precoUnitario;
 }
 
-
 function decrementarContador(produto) {
   const index = carrinhos.value.items.findIndex(item => item.id === produto.id);
 
-  if (carrinhos.value.items[index].quantidade > 1) {
-    produto.quantidade += 1;
-    carrinhos.value.items[index].quantidade -= 1;
-    carrinhos.value.items[index].preco = carrinhos.value.items[index].quantidade * carrinhos.value.items[index].precoUnitario;
+  if (carrinhos.value.items[index].quantidade === 1) {
+    const confirmar = confirm('Voce tem certeza, que deseja remover o item?');
+
+    if (confirmar) {
+      carrinhos.value.items.splice(index, 1);
+      carrinhos.value.total -= produto.precoUnitario;
+
+      const prodIndex = produtos.value.findIndex(prod => prod.id === produto.id);
+      produtos.value[prodIndex].quantidade += 1;
+
+      if (carrinhos.value.items.length === 0) {
+        carrinhos.value.total = 0;
+      }
+    }
   } else {
-    produto.quantidade += 1;
-    carrinhos.value.items.splice(index, 1);
+    carrinhos.value.items[index].quantidade -= 1;
+    carrinhos.value.total -= produto.precoUnitario;
+
+    const prodIndex = produtos.value.findIndex(prod => prod.id === produto.id);
+    produtos.value[prodIndex].quantidade += 1;
   }
-
-  const prodIndex = produtos.value.findIndex(prod => prod.id === produto.id);
-  produtos.value[prodIndex].quantidade += 1;
-
-  carrinhos.value.total = carrinhos.value.items.reduce((acc, item) => acc + item.preco, 0);
 }
 
+function removerItem(item) {
+  const index = carrinhos.value.items.findIndex(i => i.id === item.id);
+  const produto = produtos.value.find(p => p.id === item.id);
+  const quantidade = carrinhos.value.items[index].quantidade;
 
-
-
+  carrinhos.value.total -= item.preco * quantidade;
+  carrinhos.value.items.splice(index, 1);
+  produto.quantidade += quantidade;
+  
+}
 
 function selecionarProduto(produto) {
- if (produto.id === produtoSelecionado.value.id) {
-   mostrarDescricao.value = !mostrarDescricao.value;
- } else {
-   produtoSelecionado.value = produto;
-   mostrarDescricao.value = true;
- }
-};
+  if (produto.id === produtoSelecionado.value.id) {
+    mostrarDescricao.value = !mostrarDescricao.value;
+  } else {
+    produtoSelecionado.value = produto;
+    mostrarDescricao.value = true;
+  }
+}
+
+function alternarCarrinho() {
+  showProdutos.value = !showProdutos.value;
+}
 
 function toggleCarrinho() {
-    showProdutos.value = !showProdutos.value
-};
-
+  showProdutos.value = !showProdutos.value;
+}
 
 </script>
 
 
 <template>
  <main>
-   <h1>COMPRAS</h1>
-   <div>
-    <button class="botaoCarrinho" @click="toggleCarrinho">
-          {{ showProdutos ? 'Carrinho' : 'Produtos' }}
-        </button>
-    <div>
-      <div class="carrinho-container" v-if="!showProdutos">
-      <button @click="toggleCarrinho">Voltar para Produtos</button>
-      <div class="item" v-for="item in carrinhos.items" :key="item.id">
-      <p>Item: {{ item.nome }}</p>
-      <p>Preco: {{ item.preco.toFixed(2) }}</p>
-      <p>Quantidade: {{ item.quantidade }}</p>
-     <button @click="incrementarContador(item)">+</button>
-     <button @click="decrementarContador(item)">-</button>
-</div>
-    <p> Total:{{ carrinhos.total.toFixed(2) }}</p>
+    <h1>COMPRAS</h1>
+    <div class="fundo">
+      <button class="botaoCarrinho" @click="alternarCarrinho" :class="{ 'piscando': showProdutos }">
+      {{ showProdutos ? 'Carrinho' : 'Produtos' }}
+      </button>
+      <div>
+        <div class="carrinho-container" v-if="!showProdutos">
+          <div class="item" v-for="item in carrinhos.items" :key="item.id">
+            <p>Item: {{ item.nome }}</p>
+            <p>Preco: {{ item.preco.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}) }}</p>
+            <p>Quantidade: {{ item.quantidade }}</p>
+            <button class="decrementar" @click="decrementarContador(item)">-</button>
+            <button class="incrementar" @click="incrementarContador(item)">+</button>
+            <button class="remover" @click="removerItem(item)">Remover</button>
+            <button class="voltarprodutos" @click="toggleCarrinho">Voltar para Produtos</button>
 
+          </div>
+          <p  class="total" > Total: {{ carrinhos.total.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}) }}</p>
+        </div>
       </div>
-   </div>
- </div>
+    </div>
 
+    <div class="produtos"  v-if="showProdutos">
+      <div v-for="produto in produtos" :key="produto.id" class="card">
+        <p class="title">{{ produto.nome }}</p>
+        <div class="imagem"><img :src="produto.imagem"/></div>
+        <p class="quantidade">Quantidade: </p>
+        <button class="button-28" @click="selecionarProduto(produto)">
+          {{ mostrarDescricao && produto.id === produtoSelecionado.id ? 'Ocultar Descrição' : 'Mostrar descrição' }}
+        </button>
+        <div class="descricao" v-if="mostrarDescricao && produto.id === produtoSelecionado.id">
+          {{ produto.descricao }}
+        </div>
+        <div v-if="mostrarDescricao && produto.id === produtoSelecionado.id">
+        <p class="preco">Preço: {{ produto.preco.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}) }}</p>
+        <button class="button-14"><a :href="produto.link" class="link">Você pode encontrar o produto tambem em:
+        </a></button>
+      </div>
+      <button class="button-30" @click="adicionar(produto)">Adicionar</button>
+    </div>
+  </div>
 
-   <div class="produtos"  v-if="showProdutos">
-
-     <div v-for="produto in produtos" :key="produto.id" class="card">
-      <p class="title">{{ produto.nome }}</p>
-      <div class="imagem"><img :src="produto.imagem"/></div>
-      <p class="quantidade">Quantidade: </p>
-      <p>{{ produto.quantidade }}</p>
-      <button @click="incrementarContador(produto)">+</button>
-     <button @click="decrementarContador(produto )">-</button>
-   
-      <button class="button-28" @click="selecionarProduto(produto)"> {{ mostrarDescricao && produto.id ===
-         produtoSelecionado.id ? 'Ocultar Descrição' : 'Mostrar descrição' }}</button>
-
-       <div class="descricao" v-if="mostrarDescricao && produto.id === produtoSelecionado.id">{{ produto.descricao }}
-       </div>
-
-
-       <div v-if="mostrarDescricao && produto.id === produtoSelecionado.id">
-
-
-         <p class="preco">Preço: {{ produto.preco.toLocaleString('pt-BR', {style: 'currency', currency: 'BRL'}) }}</p>
-
-
-         <button class="button-14"><a :href="produto.link" class="link">Você pode encontrar o produto tambem em:
-           </a></button>
-
-
-       </div>
-       <button class="button-30" @click="adicionar(produto)" > Adcionar ao carrinho </button>
-     </div>
-   </div>
-
- </main>
-
-
-
+  </main>
 </template>
 
 
@@ -293,12 +292,20 @@ a {
 /* Carrinho */
 
 .carrinho-container {
-  display: flex;
-  justify-content: center;
+  display: run-in;
   margin-top: 2%;
   background-color: #fff;
   border: 2px solid #000;
-  width: 50%;
+  width: 100%;
+}
+
+.remover{
+  display: block;
+  margin-top: 1%;
+}
+.voltarprodutos{
+  display: block;
+  margin-top: 1%;
 }
 
 .item {
@@ -306,6 +313,13 @@ a {
   margin-top: 2%;
   border-radius: 20px;
   padding: 10px;
+}
+
+.total{
+display: flex;
+justify-content: center;
+font-size: 21px;
+font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
 
 /* Produto */
@@ -379,11 +393,23 @@ a {
 
 /* Botões */
 .botaoCarrinho {
+  position: fixed;
   background-color: #fff;
   border: 2px solid #000;
   font-size: 24px;
-  margin-left: 3%;
+  margin-left: 1%;
+  right: 90px;
 }
+
+@keyframes piscar {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.piscando {
+  animation: piscar 0.7s ease-in-out infinite alternate;
+}
+
 
 .botaoCarrinho:hover {
   background-color: #000;
@@ -391,15 +417,12 @@ a {
 }
 
 .incrementar {
- margin-left: 2%;
+ margin-left: 1%;
  border: 1px solid black;
- border-radius: 10px;
 }
 
 .decrementar {
- margin-right: 2%;
  border: 1px solid black;
- border-radius: 10px;
 }
 
 .button-14 {
